@@ -1,3 +1,3 @@
 # SrF-Rb-ODT
 
-Calculate trap depth and scattering rate of Strontium monofluoride ($^{88}$Sr$^{19}$F) and Rubidium ($^{87}Rb$) in optical dipole trap.
+Calculate trap depth of Strontium monofluoride ($^{88}\text{Sr}^{19}\text{F}$) molecule and Rubidium ($^{87}\text{Rb}$) atom in optical dipole trap.
