@@ -28,9 +28,7 @@ class BBRTransition:
         I = 1/2
 
         r = 0
-        for Nf in [Ni-1, Ni, Ni+1]:
-            if Nf < -1e6:
-                continue
+        for Nf in np.arange(np.abs(Ni-1), Ni+2):
             for Jf in np.arange(np.abs(Nf-S), Nf+S+1):
                 for Ff in np.arange(np.abs(Jf-I), Jf+I+1):
                     for mFf in np.arange(-Ff, Ff+1):
