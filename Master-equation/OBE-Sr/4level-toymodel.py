@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 def Lindblad_21(den):
 
-    Gamma_21 = 1 # MHz, decay rate
+    Gamma_21 = 2*np.pi*32 # MHz, decay rate
     return Gamma_21*np.array([[den[1, 1],  -den[0, 1]/2,  0,             0],
                             [-den[1, 0]/2, -den[1, 1],    -den[1, 2]/2,  -den[1, 3]/2],
                             [0,            -den[2, 1]/2,  0,             0],
@@ -12,7 +12,7 @@ def Lindblad_21(den):
 
 def Lindblad_32(den):
 
-    Gamma_32 = 1 # MHz, decay rate
+    Gamma_32 = 2*np.pi*3 # MHz, decay rate
     return Gamma_32*np.array([[0,           0,             -den[0, 2]/2,  0],
                             [0,             den[2, 2],     -den[1, 2]/2,  0],
                             [-den[2, 0]/2,  -den[2, 1]/2,  -den[2, 2],    -den[2, 3]/2],
@@ -20,7 +20,7 @@ def Lindblad_32(den):
 
 def Lindblad_34(den):
 
-    Gamma_34 = 1 # MHz, decay rate
+    Gamma_34 = 2*np.pi*0.5 # MHz, decay rate
     return Gamma_34*np.array([[0,           0,             -den[0, 2]/2,  0],
                             [0,             0,             -den[1, 2]/2,  0],
                             [-den[2, 0]/2,  -den[2, 1]/2,  -den[2, 2],    -den[2, 3]/2],
@@ -28,18 +28,16 @@ def Lindblad_34(den):
 
 def Hamiltonian():
 
-    Omega_12 = 1 # MHz, Rabi freq
-    Omega_23 = 1 # MHz, Rabi freq
+    Omega_12 = 10 # MHz, Rabi freq
+    Omega_23 = 3 # MHz, Rabi freq
 
-    Delta_12 = 1 # MHz, detuning
-    Delta_23 = 1 # MHz, detuning
-
-    omega_4 = 3e8 # energy of state |4>, mneasured from state |1>
+    Delta_12 = 0 # MHz, detuning
+    Delta_23 = 0 # MHz, detuning
 
     return np.array([[0,          Omega_12/2,  0,                   0],
                     [Omega_12/2,  -Delta_12,   Omega_23/2,          0],
                     [0,           Omega_23/2,  -Delta_12-Delta_23,  0],
-                    [0,           0,           0,                   omega_4]])
+                    [0,           0,           0,                   0]])
 
 
 def masterequation(t, den):
@@ -63,8 +61,22 @@ den_0 = np.array([[1+0j, 0, 0, 0],
                 [0, 0, 0, 0],
                 [0, 0, 0, 0]]) # initial density matrix
 den_0 = den_0.reshape(16)
-t_span = [0, 10]
+t_span = [0, 10000]
 
-sol = solve_ivp(masterequation, t_span=t_span, y0=den_0, t_eval=np.linspace(t_span[0], t_span[1], 100), vectorized=True)
-print(sol.t)
-print(sol.y)
+sol = solve_ivp(masterequation, t_span=t_span, y0=den_0, t_eval=np.linspace(t_span[0], t_span[1], 2000), vectorized=True)
+t = sol.t
+pop_1 = np.abs(sol.y[0])**2 # population on state 1
+pop_2 = np.abs(sol.y[5])**2 # population on state 2
+pop_3 = np.abs(sol.y[10])**2 # population on state 3
+pop_4 = np.abs(sol.y[15])**2 # population on state 4
+
+plt.plot(t, pop_1, label="state 1")
+plt.plot(t, pop_2, label="state 2")
+plt.plot(t, pop_3, label="state 3")
+plt.plot(t, pop_4, label="state 4")
+plt.legend()
+plt.ylabel("population")
+plt.xlabel("evaluation time/us")
+plt.grid()
+plt.savefig("latest.png")
+plt.show()
