@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
+import time
 
 def Lindblad_21(den):
 
@@ -61,9 +62,12 @@ den_0 = np.array([[1+0j, 0, 0, 0],
                 [0, 0, 0, 0],
                 [0, 0, 0, 0]]) # initial density matrix
 den_0 = den_0.reshape(16)
-t_span = [0, 10000]
+t_span = [0, 1000]
 
-sol = solve_ivp(masterequation, t_span=t_span, y0=den_0, t_eval=np.linspace(t_span[0], t_span[1], 2000), vectorized=True)
+t0 = time.time()
+sol = solve_ivp(masterequation, t_span=t_span, y0=den_0, t_eval=np.linspace(t_span[0], t_span[1], 200), vectorized=True)
+print("evaluation time: {:.2f} s.".format(time.time()-t0))
+
 t = sol.t
 pop_1 = np.abs(sol.y[0])**2 # population on state 1
 pop_2 = np.abs(sol.y[5])**2 # population on state 2
@@ -76,7 +80,7 @@ plt.plot(t, pop_3, label="state 3")
 plt.plot(t, pop_4, label="state 4")
 plt.legend()
 plt.ylabel("population")
-plt.xlabel("evaluation time/us")
+plt.xlabel("evaluation time / us")
 plt.grid()
-plt.savefig("latest.png")
+# plt.savefig("latest.png")
 plt.show()
