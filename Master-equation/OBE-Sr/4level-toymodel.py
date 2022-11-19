@@ -43,6 +43,8 @@ def Hamiltonian():
 
 def masterequation(t, den):
     """
+    Master equation:
+    
     t: time
     den: density matrix (in rotating frame)
     """
