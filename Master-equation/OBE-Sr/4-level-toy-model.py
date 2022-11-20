@@ -41,6 +41,7 @@ def Hamiltonian():
                     [0,           0,           0,                   0]])
 
 
+# should have used numba to improve performance
 def masterequation(t, den):
     """
     Master equation:
