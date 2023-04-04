@@ -30,7 +30,7 @@ def Snell_transmission(n1, theta1, n2, theta2):
 
 def fraction(l1, l2, l3, d1, d2, theta):
     """
-    l1: distance between molecule could to bottom of lightpipe
+    l1: distance between molecule cloud to the bottom of the lightpipe
     l2: length of light pipe
     l3: distance between PMT and top of lightpipe
     d1: diameter of lightpipe
@@ -70,11 +70,11 @@ def fraction(l1, l2, l3, d1, d2, theta):
     return t1*t2*(r**num_reflection)
 
 
-l1 = 15 # mm
-l2 = 300 # mm
-l3 = 15 # mm
-d1 = 25 # mm
-d2 = 22 # mm
+l1 = 15 # mm, distance between molecule cloud to the bottom of the lightpipe
+l2 = 300 # mm, length of light pipe
+l3 = 15 # mm, distance between PMT and top of lightpipe
+d1 = 25*0.75 # mm, diameter of lightpipe
+d2 = 22 # mm, diameter of PMT detection area
 
 theta_list = np.linspace(0, np.pi/2, 5000)
 dtheta = theta_list[1] - theta_list[0]
@@ -84,6 +84,6 @@ fraction_list = np.zeros(len(theta_list))
 for i, theta in enumerate(theta_list):
     fraction_list[i] = fraction(l1, l2, l3, d1, d2, theta)
 
-plt.plot(theta_list, fraction_list)
-plt.show()
+# plt.plot(theta_list, fraction_list)
+# plt.show()
 
