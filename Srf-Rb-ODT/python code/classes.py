@@ -1,6 +1,15 @@
 import numpy as np
 from sympy.physics.wigner import *
 
+def wigner_eckart_coefficient(j, m, k, p, jprime, mprime):
+    return (-1)**(j-m)*wigner_3j(j, k, jprime, -m, p, mprime)
+
+def spectator_theorem_coefcient(j1, j2, j12, k1, j1prime, j2prime, j12prime):
+    if np.abs(j2 - j2prime) < 1e-6:
+        return (-1)**(j12prime+j1+k1+j2)*np.sqrt(2*j12+1)*np.sqrt(2*j12prime+1)*wigner_6j(j1prime, j12prime, j2, j12, j1, k1)
+    else:
+        return 0
+
 class Hunds_case_a_state:
     def __init__(self, label, Lambda, S, Sigma, J, Omega, I, F):
         self.label = label
@@ -373,13 +382,14 @@ class Rb_coupled_state:
 
 # adapted from my august 2021 code, in slighly different format from SrF calculation
 class Rb_ground_state:
-    def __init__(self, label='5S1_2 state', energy=0, J=1/2, I=3/2, F=2):
+    def __init__(self, label='5S1_2 state', energy=0, J=1/2, I=3/2, F=2, mF=0):
         self.label = label
         self.energy = energy # in 1/cm
         self.energy_au = (energy*1e2*299792458*2*np.pi)/(4.134137336e16) # energy in atomic units, 1 a.u = 4.134137336*10^16 Hz (angular frequency)
         self.J = J
         self.I = I
         self.F = F
+        self.mF = mF
 
         self.coupled_state_list = []
         self.coupled_state_list.append(Rb_coupled_state(label='5p1_2', energy=12578.950, J=1/2, reduced_matrix_element=4.227))
@@ -397,14 +407,15 @@ class Rb_ground_state:
         self.polarizability_core = 9.3
 
 class RbacStarkShift:
-    def __init__(self, state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=0, print_polarizability=True, print_stark_shift=True):
+    def __init__(self, state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=0, LaserPolarization=0,
+                 print_polarizability=True, print_stark_shift=True, print_scattering_rate=True):
         self.state = state
         self.LaserWavelength_nm = LaserWavelength_nm
         self.LaserIntensity_kW_invcm2 = LaserIntensity_kW_invcm2
 
         self.calculate_polarizability(print_result=print_polarizability)
         self.calculate_stark_shift(print_result=print_stark_shift)
-        self.calculate_scattering_rate()
+        self.calculate_scattering_rate(LaserPolarization=LaserPolarization, print_result=print_scattering_rate)
 
     def calculate_polarizability(self, print_result=True):
         LaserEnergy = (1/(self.LaserWavelength_nm/1e9)*299792458*2*np.pi)/(4.134137336e16) # laser energy in atomic units
@@ -466,14 +477,68 @@ class RbacStarkShift:
             print("scalar shift: {:.2f} uK ({:.2f} MHz)".format(ScalarShift_uK, ScalarShift_MHz))
             print("")
 
-    def calculate_scattering_rate(self):
-        HartreeTouK = 315775.02480407e6 # convert Hartree to uK
-        u = self.StarkShift_dict["scalar shift uK"]/HartreeTouK
+    def calculate_scattering_rate(self, LaserPolarization=0, print_result=True):     
         LaserEnergy = (1/(self.LaserWavelength_nm/1e9)*299792458*2*np.pi)/(4.134137336e16) # laser energy in atomic units
-        TransitionEnergy = (1/(780/1e9)*299792458*2*np.pi)/(4.134137336e16) # transition energy in atomic units
-        Delta = TransitionEnergy - LaserEnergy
-        Gamma_sc = u/Delta*2*np.pi*6.065e6 # scattering rate in 1/s
-        self.scattering_rate_invs = np.abs(Gamma_sc)
+        permittivity = 1/(4*np.pi) # permittivity in atomic units
+        kw_invcm2_ToAtomicUnit = 1/((4.3597447222071e-18)**2/(1.054571817e-34)/1e3/(5.29177210903e-9)**2)
+        AtomicUnit_To_seconds = 2.4188843265857e-17 # seconds
+        SpeedOfLight = 137.035999084 # in atomic units
+        LaserIntensity = self.LaserIntensity_kW_invcm2*kw_invcm2_ToAtomicUnit # Laser intensity in atomic units
+        prefactor = LaserIntensity*LaserEnergy**3/(6*np.pi)/permittivity**2/SpeedOfLight**4 # prefactor for converting polarizability to ac Stark shift
+
+        # assume the initial and final state to be self.state
+        initial_state = self.state
+        final_state = self.state
+        Jprime = final_state.J
+        I = initial_state.I
+        J = initial_state.J
+        F = initial_state.F
+        mF = initial_state.mF
+
+        s = 0
+        for Fprime in np.arange(np.abs(Jprime-I), Jprime+I+1):
+            for mFprime in np.arange(-Fprime, Fprime+1):
+                for p in [-1, 0, 1]:
+                    a = 0
+
+                    for intermediate_state in self.state.coupled_state_list:
+                        Jdoubleprime = intermediate_state.J
+
+                        for Fdoubleprime in np.arange(np.abs(Jdoubleprime-I), Jdoubleprime+I+1):
+                            for mFdoubleprime in np.arange(-Fdoubleprime, Fdoubleprime+1):
+                                b = 1
+
+                                b *= wigner_eckart_coefficient(Fprime, mFprime, 1, p, Fdoubleprime, mFdoubleprime)
+                                b *= spectator_theorem_coefcient(Jprime, I, Fprime, 1, Jdoubleprime, I, Fdoubleprime)
+
+                                b *= wigner_eckart_coefficient(Fdoubleprime, mFdoubleprime, 1, LaserPolarization, F, mF)
+                                b *= spectator_theorem_coefcient(Jdoubleprime, I, Fdoubleprime, 1, J, I, F)
+
+                                b *= (-1)**(Jdoubleprime-J)*intermediate_state.reduced_matrix_element**2
+
+                                b /= (intermediate_state.energy_au-LaserEnergy)
+
+                                a += b
+
+                                b = 1
+
+                                b *= wigner_eckart_coefficient(Fprime, mFprime, 1, LaserPolarization, Fdoubleprime, mFdoubleprime)
+                                b *= spectator_theorem_coefcient(Jprime, I, Fprime, 1, Jdoubleprime, I, Fdoubleprime)
+
+                                b *= wigner_eckart_coefficient(Fdoubleprime, mFdoubleprime, 1, p, F, mF)
+                                b *= spectator_theorem_coefcient(Jdoubleprime, I, Fdoubleprime, 1, J, I, F)
+
+                                b *= (-1)**(Jdoubleprime-J)*intermediate_state.reduced_matrix_element**2
+
+                                b /= (intermediate_state.energy_au+LaserEnergy)
+
+                                a += b
+
+                    s += np.abs(a)**2
+
+        scattering_rate_au = prefactor*s
+        scattering_rate = scattering_rate_au/AtomicUnit_To_seconds
+        self.scattering_rate_invs = scattering_rate
 
         hbar = 1.05457182e-34 # SI units
         k = 2*np.pi/(self.LaserWavelength_nm/1e9) # 1/m
@@ -481,3 +546,10 @@ class RbacStarkShift:
         kB = 1.380649e-23 # J/K
         T_rec = ((hbar*k)**2)/m/kB # recoil temperature, K
         self.heating_rate_nK_s = T_rec*self.scattering_rate_invs/3*1e9 # nK/s
+
+        if print_result:
+            print(f"Photon scattering rate of state {self.state.label} (J={self.state.J}, F={self.state.F}, mF={mF}) in {self.LaserWavelength_nm} nm (polarization={LaserPolarization}) ODT.")
+            print("----------------------------------------------------------")
+            print("Scattering rate: {:.2f} 1/s ".format(self.scattering_rate_invs))
+            print("Heatinging rate: {:.0f} nK/s ".format(self.heating_rate_nK_s))
+            print("")

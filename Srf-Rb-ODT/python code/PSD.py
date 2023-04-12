@@ -1,4 +1,3 @@
-from matplotlib.pyplot import psd
 import numpy as np
 
 T = 100e-9 # K
