@@ -1,8 +1,8 @@
 import numpy as np
 from sympy.physics.wigner import *
 
-def wigner_eckart_coefficient(j, m, k, p, jprime, mprime):
-    r = (-1)**(j-m)*wigner_3j(j, k, jprime, -m, p, mprime)
+def wigner_eckart_coefficient(j, m, k, p, J_prime, mprime):
+    r = (-1)**(j-m)*wigner_3j(j, k, J_prime, -m, p, mprime)
     return float(r)
 
 def spectator_theorem_coefcient(j1, j2, j12, k1, j1prime, j2prime, j12prime):
@@ -382,15 +382,74 @@ class SrFacStarkShift:
         prefactor = LaserIntensity*LaserEnergy**3/(6*np.pi)/permittivity**2/self.SpeedOfLight**4 # prefactor for converting polarizability to ac Stark shift
 
         initial_state = self.state # assume the initial state to be self.state
-        final_state = self.state # assume the final state is in ground electronic state, we only use J from self.state, not F
-        Jprime = final_state.J
+        S = initial_state.S
         I = initial_state.I
         J = initial_state.J
         F = initial_state.F
         mF = initial_state.mF
 
+        # final states are assumed to be X (ground) states, 
+        # and since we ignore rotational and hyperfine splittings here, these states are treated degenerately
+        # so here we don't have to use Hund's case b basis but any complete basis is fine
+        # we choose Hund's case a basis for convenience
+        Lambda_prime = 0
+        S_prime = S
+        I_prime = I
+
+        S_doubleprime = S
+        I_doubleprime = I
+
         s = 0
 
+        for Sigma_prime in np.arange(-S_prime, S_prime+1):
+            for J_prime in np.arange(1/2, 10): # just pick a big number for upper limit of J_prime
+                for F_prime in np.arange(np.abs(J_prime-I_prime), J_prime+I_prime+1):
+                    for mF_prime in np.arange(-F_prime, F_prime+1):
+                        final_state = Hunds_case_a_state(label="final state", Lambda=Lambda_prime, S=S_prime, Sigma=Sigma_prime, J=J_prime, Omega=Lambda_prime+Sigma_prime, I=I_prime, F=F_prime, mF=mF_prime)
+                        for p in [-1, 0, 1]:
+                            a = 0
+
+                            for intermediate_state in self.excited_state_list:
+                                Lambda_doubleprime = intermediate_state["Lambda"]
+                                Sigma_doubleprime = intermediate_state["Sigma"]
+                                Omega_doubleprime = Lambda_doubleprime + Sigma_doubleprime
+
+                                for J_doubleprime in np.arange(np.abs(Omega_doubleprime), self.state.J+10): # just pick a big number for upper limit of J_doubleprime
+                                    for F_doubleprime in np.arange(np.abs(J_doubleprime-I_doubleprime), J_doubleprime+I_doubleprime+1):
+                                        for mF_doubleprime in np.arange(-F_doubleprime, F_doubleprime+1):
+                                            intermediate_state = Hunds_case_a_state(label="intermediate state", Lambda=Lambda_doubleprime, S=S_doubleprime, Sigma=Sigma_doubleprime, J=J_doubleprime, Omega=Omega_doubleprime, I=I_doubleprime, F=F_doubleprime, mF=mF_doubleprime)
+                                            
+                                            b = 1
+
+                                            b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, p, F_doubleprime, mF_doubleprime)
+                                            b *= intermediate_state.calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=final_state)
+
+                                            b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, LaserPolarization, F, mF)
+                                            c = 0
+                                            for partial_initial_state in initial_state.Hunds_case_a_list:
+                                                c += partial_initial_state["coefficient"]*(partial_initial_state["state"].calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=intermediate_state))
+                                            b *= c
+
+                                            b /= intermediate_state["detuning co-rotate"]
+
+                                            a += b
+
+                                            b = 1
+
+                                            # remain to be done
+
+                                            b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, p, F_doubleprime, mF_doubleprime)
+                                            b *= intermediate_state.calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=final_state)
+
+                                            b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, LaserPolarization, F, mF)
+                                            c = 0
+                                            for partial_initial_state in initial_state.Hunds_case_a_list:
+                                                c += partial_initial_state["coefficient"]*(partial_initial_state["state"].calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=intermediate_state))
+                                            b *= c
+
+                                            b /= intermediate_state["detuning co-rotate"]
+
+                                            a += b
 
 
 class Rb_coupled_state:
@@ -510,32 +569,32 @@ class RbacStarkShift:
 
         initial_state = self.state # assume the initial state to be self.state
         final_state = self.state # assume the final state is in ground electronic state, we only use J from self.state, not F
-        Jprime = final_state.J
+        J_prime = final_state.J
         I = initial_state.I
         J = initial_state.J
         F = initial_state.F
         mF = initial_state.mF
 
         s = 0
-        for Fprime in np.arange(np.abs(Jprime-I), Jprime+I+1):
-            for mFprime in np.arange(-Fprime, Fprime+1):
+        for F_prime in np.arange(np.abs(J_prime-I), J_prime+I+1):
+            for mF_prime in np.arange(-F_prime, F_prime+1):
                 for p in [-1, 0, 1]:
                     a = 0
 
                     for intermediate_state in self.state.coupled_state_list:
-                        Jdoubleprime = intermediate_state.J
+                        J_doubleprime = intermediate_state.J
 
-                        for Fdoubleprime in np.arange(np.abs(Jdoubleprime-I), Jdoubleprime+I+1):
-                            for mFdoubleprime in np.arange(-Fdoubleprime, Fdoubleprime+1):
+                        for F_doubleprime in np.arange(np.abs(J_doubleprime-I), J_doubleprime+I+1):
+                            for mF_doubleprime in np.arange(-F_doubleprime, F_doubleprime+1):
                                 b = 1
 
-                                b *= wigner_eckart_coefficient(Fprime, mFprime, 1, p, Fdoubleprime, mFdoubleprime)
-                                b *= spectator_theorem_coefcient(Jprime, I, Fprime, 1, Jdoubleprime, I, Fdoubleprime)
+                                b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, p, F_doubleprime, mF_doubleprime)
+                                b *= spectator_theorem_coefcient(J_prime, I, F_prime, 1, J_doubleprime, I, F_doubleprime)
 
-                                b *= wigner_eckart_coefficient(Fdoubleprime, mFdoubleprime, 1, LaserPolarization, F, mF)
-                                b *= spectator_theorem_coefcient(Jdoubleprime, I, Fdoubleprime, 1, J, I, F)
+                                b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, LaserPolarization, F, mF)
+                                b *= spectator_theorem_coefcient(J_doubleprime, I, F_doubleprime, 1, J, I, F)
 
-                                b *= (-1)**(Jdoubleprime-J)*intermediate_state.reduced_matrix_element**2
+                                b *= (-1)**(J_doubleprime-J)*intermediate_state.reduced_matrix_element**2
 
                                 b /= (intermediate_state.energy_au-LaserEnergy)
 
@@ -543,13 +602,13 @@ class RbacStarkShift:
 
                                 b = 1
 
-                                b *= wigner_eckart_coefficient(Fprime, mFprime, 1, LaserPolarization, Fdoubleprime, mFdoubleprime)
-                                b *= spectator_theorem_coefcient(Jprime, I, Fprime, 1, Jdoubleprime, I, Fdoubleprime)
+                                b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, LaserPolarization, F_doubleprime, mF_doubleprime)
+                                b *= spectator_theorem_coefcient(J_prime, I, F_prime, 1, J_doubleprime, I, F_doubleprime)
 
-                                b *= wigner_eckart_coefficient(Fdoubleprime, mFdoubleprime, 1, p, F, mF)
-                                b *= spectator_theorem_coefcient(Jdoubleprime, I, Fdoubleprime, 1, J, I, F)
+                                b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, p, F, mF)
+                                b *= spectator_theorem_coefcient(J_doubleprime, I, F_doubleprime, 1, J, I, F)
 
-                                b *= (-1)**(Jdoubleprime-J)*intermediate_state.reduced_matrix_element**2
+                                b *= (-1)**(J_doubleprime-J)*intermediate_state.reduced_matrix_element**2
 
                                 b /= (intermediate_state.energy_au+LaserEnergy)
 
