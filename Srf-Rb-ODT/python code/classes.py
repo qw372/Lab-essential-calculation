@@ -2,16 +2,18 @@ import numpy as np
 from sympy.physics.wigner import *
 
 def wigner_eckart_coefficient(j, m, k, p, jprime, mprime):
-    return (-1)**(j-m)*wigner_3j(j, k, jprime, -m, p, mprime)
+    r = (-1)**(j-m)*wigner_3j(j, k, jprime, -m, p, mprime)
+    return float(r)
 
 def spectator_theorem_coefcient(j1, j2, j12, k1, j1prime, j2prime, j12prime):
     if np.abs(j2 - j2prime) < 1e-6:
-        return (-1)**(j12prime+j1+k1+j2)*np.sqrt(2*j12+1)*np.sqrt(2*j12prime+1)*wigner_6j(j1prime, j12prime, j2, j12, j1, k1)
+        r = (-1)**(j12prime+j1+k1+j2)*np.sqrt(2*j12+1)*np.sqrt(2*j12prime+1)*wigner_6j(j1prime, j12prime, j2, j12, j1, k1)
+        return float(r)
     else:
         return 0
 
 class Hunds_case_a_state:
-    def __init__(self, label, Lambda, S, Sigma, J, Omega, I, F):
+    def __init__(self, label, Lambda, S, Sigma, J, Omega, I, F, mF):
         self.label = label
         self.Lambda = Lambda
         self.S = np.abs(S)
@@ -20,6 +22,7 @@ class Hunds_case_a_state:
         self.Omega = Omega
         self.I = np.abs(I)
         self.F = np.abs(F)
+        self.mF = mF
 
     def __enter__(self):
         return self
@@ -65,7 +68,7 @@ class Hunds_case_a_state:
 
 
 class Hunds_case_b_state:
-    def __init__(self, label, Lambda, N, S, J, I, F, JMixing=[]):
+    def __init__(self, label, Lambda, N, S, J, I, F, mF, JMixing=[]):
         self.label = label
         self.Lambda = Lambda
         self.N = np.abs(N)
@@ -73,6 +76,7 @@ class Hunds_case_b_state:
         self.J = np.abs(J)
         self.I = np.abs(I)
         self.F = np.abs(F)
+        self.mF = mF
 
         self.convert_to_Hunds_case_a(JMixing)
 
@@ -94,7 +98,7 @@ class Hunds_case_b_state:
             for mixed_b_state_info in JMixing:
                 # mixed_b_state_info is in form of {"mixing coefficient": a number, "J": J}
 
-                b_state = Hunds_case_b_state(label=self.label, Lambda=self.Lambda, N=self.N, S=self.S, J=mixed_b_state_info["J"], I=self.I, F=self.F)
+                b_state = Hunds_case_b_state(label=self.label, Lambda=self.Lambda, N=self.N, S=self.S, J=mixed_b_state_info["J"], I=self.I, F=self.F, mF=self.mF)
                 for a_state in b_state.Hunds_case_a_list:
                     # a_state is in form of {"coefficient": a number, "state": a Hund's a state}
 
@@ -115,12 +119,12 @@ class Hunds_case_b_state:
                     d["coefficient"] = coefficient
                     d["state"] = Hunds_case_a_state(label=self.label, Lambda=self.Lambda, 
                                                     S=self.S, Sigma=Sigma, J=self.J, 
-                                                    Omega=Sigma+self.Lambda, I=self.I, F=self.F)
+                                                    Omega=Sigma+self.Lambda, I=self.I, F=self.F, mF=self.mF)
                     self.Hunds_case_a_list.append(d)
 
 
 class SrFacStarkShift:
-    def __init__(self, state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=0, print_dipole_moment=False, print_polarizability=True, print_stark_shift=True):
+    def __init__(self, state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=0, LaserPolarization=0, print_dipole_moment=False, print_polarizability=True, print_stark_shift=True, print_scattering_rate=True):
         self.state = state
         self.LaserWavelength_nm = LaserWavelength_nm
         self.LaserIntensity_kW_invcm2 = LaserIntensity_kW_invcm2
@@ -129,7 +133,7 @@ class SrFacStarkShift:
         self.calculate_dipole_moment(print_result=print_dipole_moment)
         self.calculate_polarizability(print_result=print_polarizability)
         self.calculate_stark_shift(print_result=print_stark_shift)
-        self.calculate_scattering_rate()
+        self.calculate_scattering_rate(LaserPolarization=LaserPolarization, print_result=print_scattering_rate)
 
     def define_constants(self):
         # spectroscopic data are from Thomas' Matlab code
@@ -188,7 +192,7 @@ class SrFacStarkShift:
         self.DetuningGPi = self.GPiEnergy - LaserEnergy
         self.DetuningH = self.HEnergy - LaserEnergy
 
-        # define detunings relative to each electronic state, co-rotating term in atomic units
+        # define detunings relative to each electronic state, counter-rotating term in atomic units
         self.DetuningAPiOneHalfCounterRotate = self.APiOneHalfEnergy + LaserEnergy
         self.DetuningAPiThreeHalvesCounterRotate = self.APiThreeHalvesEnergy + LaserEnergy
         self.DetuningBSigmaCounterRotate = self.BSigmaEnergy + LaserEnergy
@@ -308,7 +312,7 @@ class SrFacStarkShift:
                         partial_dipole = 0
                         for d in self.state.Hunds_case_a_list:
                             state_prime = Hunds_case_a_state(label=excited_state["label"], Lambda=Lambda_prime, S=self.state.S, 
-                                                            Sigma=Sigma_prime, J=J_prime, Omega=Omega_prime, I=self.state.I, F=F_prime)
+                                                            Sigma=Sigma_prime, J=J_prime, Omega=Omega_prime, I=self.state.I, F=F_prime, mF=0) # mF doesn't matter her, just put a random number
                             partial_dipole += d["coefficient"]*(d["state"].calculate_dipole_moment(dipole_moment_Lambda=excited_state["transition dipole"], state_prime=state_prime))
                         partial_polarizability += (((-1)**(self.state.F+F_prime))*float(wigner_6j(1, 1, K, self.state.F, self.state.F, F_prime))*(partial_dipole**2)
                                                     *(1/excited_state["detuning co-rotate"]+((-1)**K)/excited_state["detuning counter-rotate"]))
@@ -356,19 +360,37 @@ class SrFacStarkShift:
             print("scalar shift: {:.2f} uK ({:.2f} MHz)".format(ScalarShift_uK, ScalarShift_MHz))
             print("")
 
-    def calculate_scattering_rate(self):
-        HartreeTouK = 315775.02480407e6 # convert Hartree to uK
-        u = self.StarkShift_dict["scalar shift uK"]/HartreeTouK
-        Delta = self.DetuningAPiOneHalf
-        Gamma_sc = u/Delta*(1/(self.APiOneHalfLifetime_ns/1e9)) # scattering rate in 1/s
-        self.scattering_rate_invs = np.abs(Gamma_sc)
+    def calculate_scattering_rate(self, LaserPolarization=0, print_result=True):
+        # HartreeTouK = 315775.02480407e6 # convert Hartree to uK
+        # u = self.StarkShift_dict["scalar shift uK"]/HartreeTouK
+        # Delta = self.DetuningAPiOneHalf
+        # Gamma_sc = u/Delta*(1/(self.APiOneHalfLifetime_ns/1e9)) # scattering rate in 1/s
+        # self.scattering_rate_invs = np.abs(Gamma_sc)
 
-        hbar = 1.05457182e-34 # SI units
-        k = 2*np.pi/(self.LaserWavelength_nm/1e9) # 1/m
-        m = 106.62*1.66053906660e-27 # kg
-        kB = 1.380649e-23 # J/K
-        T_rec = ((hbar*k)**2)/m/kB # recoil temperature, K
-        self.heating_rate_nK_s = T_rec*self.scattering_rate_invs/3*1e9 # nK/s
+        # hbar = 1.05457182e-34 # SI units
+        # k = 2*np.pi/(self.LaserWavelength_nm/1e9) # 1/m
+        # m = 106.62*1.66053906660e-27 # kg
+        # kB = 1.380649e-23 # J/K
+        # T_rec = ((hbar*k)**2)/m/kB # recoil temperature, K
+        # self.heating_rate_nK_s = T_rec*self.scattering_rate_invs/3*1e9 # nK/s
+
+        LaserEnergy = (1/(self.LaserWavelength_nm/1e9)*299792458*2*np.pi)/(4.134137336e16) # laser energy in atomic units
+        permittivity = 1/(4*np.pi) # permittivity in atomic units
+        kw_invcm2_ToAtomicUnit = 1/((4.3597447222071e-18)**2/(1.054571817e-34)/1e3/(5.29177210903e-9)**2)
+        AtomicUnit_To_seconds = 2.4188843265857e-17 # seconds
+        LaserIntensity = self.LaserIntensity_kW_invcm2*kw_invcm2_ToAtomicUnit # Laser intensity in atomic units
+        prefactor = LaserIntensity*LaserEnergy**3/(6*np.pi)/permittivity**2/self.SpeedOfLight**4 # prefactor for converting polarizability to ac Stark shift
+
+        initial_state = self.state # assume the initial state to be self.state
+        final_state = self.state # assume the final state is in ground electronic state, we only use J from self.state, not F
+        Jprime = final_state.J
+        I = initial_state.I
+        J = initial_state.J
+        F = initial_state.F
+        mF = initial_state.mF
+
+        s = 0
+
 
 
 class Rb_coupled_state:
@@ -486,9 +508,8 @@ class RbacStarkShift:
         LaserIntensity = self.LaserIntensity_kW_invcm2*kw_invcm2_ToAtomicUnit # Laser intensity in atomic units
         prefactor = LaserIntensity*LaserEnergy**3/(6*np.pi)/permittivity**2/SpeedOfLight**4 # prefactor for converting polarizability to ac Stark shift
 
-        # assume the initial and final state to be self.state
-        initial_state = self.state
-        final_state = self.state
+        initial_state = self.state # assume the initial state to be self.state
+        final_state = self.state # assume the final state is in ground electronic state, we only use J from self.state, not F
         Jprime = final_state.J
         I = initial_state.I
         J = initial_state.J

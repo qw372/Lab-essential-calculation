@@ -73,7 +73,7 @@ def fraction(l1, l2, l3, d1, d2, theta):
 l1 = 15 # mm, distance between molecule cloud to the bottom of the lightpipe
 l2 = 300 # mm, length of light pipe
 l3 = 15 # mm, distance between PMT and top of lightpipe
-d1 = 25*0.75 # mm, diameter of lightpipe
+d1 = 25*1 # mm, diameter of lightpipe
 d2 = 22 # mm, diameter of PMT detection area
 
 theta_list = np.linspace(0, np.pi/2, 5000)
