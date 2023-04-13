@@ -229,69 +229,69 @@ class SrFacStarkShift:
         self.excited_state_list.append({"label":"APiThreeHalves", "Lambda":-1, "Sigma":-1/2, "transition dipole":APiThreeHalvesDipole, 
                                         "detuning co-rotate":self.DetuningAPiThreeHalves, "detuning counter-rotate":self.DetuningAPiThreeHalvesCounterRotate})
 
-        # B Sigma state
-        TransitionFreq = (self.BSigmaEnergy - self.XSigmaEnergy)/self.hbar
-        BSigmaDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.BSigmaLifetime)
-        self.excited_state_list.append({"label":"BSigma", "Lambda":0, "Sigma":1/2, "transition dipole":BSigmaDipole, 
-                                        "detuning co-rotate":self.DetuningBSigma, "detuning counter-rotate":self.DetuningBSigmaCounterRotate})
-        self.excited_state_list.append({"label":"BSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":BSigmaDipole, 
-                                        "detuning co-rotate":self.DetuningBSigma, "detuning counter-rotate":self.DetuningBSigmaCounterRotate})
+        # # B Sigma state
+        # TransitionFreq = (self.BSigmaEnergy - self.XSigmaEnergy)/self.hbar
+        # BSigmaDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.BSigmaLifetime)
+        # self.excited_state_list.append({"label":"BSigma", "Lambda":0, "Sigma":1/2, "transition dipole":BSigmaDipole, 
+        #                                 "detuning co-rotate":self.DetuningBSigma, "detuning counter-rotate":self.DetuningBSigmaCounterRotate})
+        # self.excited_state_list.append({"label":"BSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":BSigmaDipole, 
+        #                                 "detuning co-rotate":self.DetuningBSigma, "detuning counter-rotate":self.DetuningBSigmaCounterRotate})
         
-        # C Pi state
-        TransitionFreq = (self.CPiOneHalfEnergy - self.XSigmaEnergy)/self.hbar
-        CPiOneHalfDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.CPiOneHalfLifetime)
-        self.excited_state_list.append({"label":"CPi", "Lambda":1, "Sigma":-1/2, "transition dipole":CPiOneHalfDipole, 
-                                        "detuning co-rotate":self.DetuningCPiOneHalf, "detuning counter-rotate":self.DetuningCPiOneHalfCounterRotate})
-        self.excited_state_list.append({"label":"CPi", "Lambda":-1, "Sigma":1/2, "transition dipole":CPiOneHalfDipole, 
-                                        "detuning co-rotate":self.DetuningCPiOneHalf, "detuning counter-rotate":self.DetuningCPiOneHalfCounterRotate})
+        # # C Pi state
+        # TransitionFreq = (self.CPiOneHalfEnergy - self.XSigmaEnergy)/self.hbar
+        # CPiOneHalfDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.CPiOneHalfLifetime)
+        # self.excited_state_list.append({"label":"CPi", "Lambda":1, "Sigma":-1/2, "transition dipole":CPiOneHalfDipole, 
+        #                                 "detuning co-rotate":self.DetuningCPiOneHalf, "detuning counter-rotate":self.DetuningCPiOneHalfCounterRotate})
+        # self.excited_state_list.append({"label":"CPi", "Lambda":-1, "Sigma":1/2, "transition dipole":CPiOneHalfDipole, 
+        #                                 "detuning co-rotate":self.DetuningCPiOneHalf, "detuning counter-rotate":self.DetuningCPiOneHalfCounterRotate})
 
-        # assume CPi three halves states have the same dipole moment as CPi one half states
-        self.excited_state_list.append({"label":"CPi", "Lambda":1, "Sigma":1/2, "transition dipole":CPiOneHalfDipole, 
-                                        "detuning co-rotate":self.DetuningCPiThreeHalves, "detuning counter-rotate":self.DetuningCPiThreeHalvesCounterRotate}) 
-        self.excited_state_list.append({"label":"CPi", "Lambda":-1, "Sigma":-1/2, "transition dipole":CPiOneHalfDipole,
-                                        "detuning co-rotate":self.DetuningCPiThreeHalves, "detuning counter-rotate":self.DetuningCPiThreeHalvesCounterRotate})
+        # # assume CPi three halves states have the same dipole moment as CPi one half states
+        # self.excited_state_list.append({"label":"CPi", "Lambda":1, "Sigma":1/2, "transition dipole":CPiOneHalfDipole, 
+        #                                 "detuning co-rotate":self.DetuningCPiThreeHalves, "detuning counter-rotate":self.DetuningCPiThreeHalvesCounterRotate}) 
+        # self.excited_state_list.append({"label":"CPi", "Lambda":-1, "Sigma":-1/2, "transition dipole":CPiOneHalfDipole,
+        #                                 "detuning co-rotate":self.DetuningCPiThreeHalves, "detuning counter-rotate":self.DetuningCPiThreeHalvesCounterRotate})
 
-        # D Sigma state
-        TransitionFreq = (self.DSigmaEnergy - self.XSigmaEnergy)/self.hbar
-        DSigmaDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.DSigmaLifetime)
-        self.excited_state_list.append({"label":"DSigma", "Lambda":0, "Sigma":1/2, "transition dipole":DSigmaDipole, 
-                                        "detuning co-rotate":self.DetuningDSigma, "detuning counter-rotate":self.DetuningDSigmaCounterRotate})
-        self.excited_state_list.append({"label":"DSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":DSigmaDipole, 
-                                        "detuning co-rotate":self.DetuningDSigma, "detuning counter-rotate":self.DetuningDSigmaCounterRotate})
+        # # D Sigma state
+        # TransitionFreq = (self.DSigmaEnergy - self.XSigmaEnergy)/self.hbar
+        # DSigmaDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.DSigmaLifetime)
+        # self.excited_state_list.append({"label":"DSigma", "Lambda":0, "Sigma":1/2, "transition dipole":DSigmaDipole, 
+        #                                 "detuning co-rotate":self.DetuningDSigma, "detuning counter-rotate":self.DetuningDSigmaCounterRotate})
+        # self.excited_state_list.append({"label":"DSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":DSigmaDipole, 
+        #                                 "detuning co-rotate":self.DetuningDSigma, "detuning counter-rotate":self.DetuningDSigmaCounterRotate})
 
-        # F Sigma state
-        FSigmaDipole = 0.4
-        self.excited_state_list.append({"label":"FSigma", "Lambda":0, "Sigma":1/2, "transition dipole":FSigmaDipole, 
-                                        "detuning co-rotate":self.DetuningFSigma, "detuning counter-rotate":self.DetuningFSigmaCounterRotate})
-        self.excited_state_list.append({"label":"FSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":FSigmaDipole, 
-                                        "detuning co-rotate":self.DetuningFSigma, "detuning counter-rotate":self.DetuningFSigmaCounterRotate})
+        # # F Sigma state
+        # FSigmaDipole = 0.4
+        # self.excited_state_list.append({"label":"FSigma", "Lambda":0, "Sigma":1/2, "transition dipole":FSigmaDipole, 
+        #                                 "detuning co-rotate":self.DetuningFSigma, "detuning counter-rotate":self.DetuningFSigmaCounterRotate})
+        # self.excited_state_list.append({"label":"FSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":FSigmaDipole, 
+        #                                 "detuning co-rotate":self.DetuningFSigma, "detuning counter-rotate":self.DetuningFSigmaCounterRotate})
 
-        # G Pi state
-        GPiDipole = 0.5
-        self.excited_state_list.append({"label":"GPi", "Lambda":1, "Sigma":-1/2, "transition dipole":GPiDipole, 
-                                        "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
-        self.excited_state_list.append({"label":"GPi", "Lambda":-1, "Sigma":1/2, "transition dipole":GPiDipole, 
-                                        "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
-        self.excited_state_list.append({"label":"GPi", "Lambda":1, "Sigma":1/2, "transition dipole":GPiDipole, 
-                                        "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
-        self.excited_state_list.append({"label":"GPi", "Lambda":-1, "Sigma":-1/2, "transition dipole":GPiDipole, 
-                                        "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
+        # # G Pi state
+        # GPiDipole = 0.5
+        # self.excited_state_list.append({"label":"GPi", "Lambda":1, "Sigma":-1/2, "transition dipole":GPiDipole, 
+        #                                 "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
+        # self.excited_state_list.append({"label":"GPi", "Lambda":-1, "Sigma":1/2, "transition dipole":GPiDipole, 
+        #                                 "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
+        # self.excited_state_list.append({"label":"GPi", "Lambda":1, "Sigma":1/2, "transition dipole":GPiDipole, 
+        #                                 "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
+        # self.excited_state_list.append({"label":"GPi", "Lambda":-1, "Sigma":-1/2, "transition dipole":GPiDipole, 
+        #                                 "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
 
         # H state
         HDipole = 2.2934*self.DebyeToAtomicUnit
 
-        if print_result:
-            print("Transition dipole moments from X state.")
-            print("---------------------------------------")
-            print("A Pi one half state: {:.3f} a.u.".format(APiOneHalfDipole))
-            print("A Pi three halves state: {:.3f} a.u.".format(APiThreeHalvesDipole))
-            print("B Sigma state: {:.3f} a.u.".format(BSigmaDipole))
-            print("C Pi one half state: {:.3f} a.u.".format(CPiOneHalfDipole))
-            print("D Sigma state: {:.3f} a.u.".format(DSigmaDipole))
-            print("F Sigma state: {:.3f} a.u.".format(FSigmaDipole))
-            print("G Pi state: {:.3f} a.u.".format(GPiDipole))
-            print("H state: {:.3f} a.u.".format(HDipole))
-            print("")
+        # if print_result:
+        #     print("Transition dipole moments from X state.")
+        #     print("---------------------------------------")
+        #     print("A Pi one half state: {:.3f} a.u.".format(APiOneHalfDipole))
+        #     print("A Pi three halves state: {:.3f} a.u.".format(APiThreeHalvesDipole))
+        #     print("B Sigma state: {:.3f} a.u.".format(BSigmaDipole))
+        #     print("C Pi one half state: {:.3f} a.u.".format(CPiOneHalfDipole))
+        #     print("D Sigma state: {:.3f} a.u.".format(DSigmaDipole))
+        #     print("F Sigma state: {:.3f} a.u.".format(FSigmaDipole))
+        #     print("G Pi state: {:.3f} a.u.".format(GPiDipole))
+        #     print("H state: {:.3f} a.u.".format(HDipole))
+        #     print("")
 
     def calculate_polarizability(self, print_result=True):
         self.polarizability_dict = {}
@@ -384,7 +384,6 @@ class SrFacStarkShift:
         initial_state = self.state # assume the initial state to be self.state
         S = initial_state.S
         I = initial_state.I
-        J = initial_state.J
         F = initial_state.F
         mF = initial_state.mF
 
@@ -402,54 +401,75 @@ class SrFacStarkShift:
         s = 0
 
         for Sigma_prime in np.arange(-S_prime, S_prime+1):
-            for J_prime in np.arange(1/2, 10): # just pick a big number for upper limit of J_prime
+            for J_prime in np.arange(1/2, initial_state.J+3):
                 for F_prime in np.arange(np.abs(J_prime-I_prime), J_prime+I_prime+1):
                     for mF_prime in np.arange(-F_prime, F_prime+1):
                         final_state = Hunds_case_a_state(label="final state", Lambda=Lambda_prime, S=S_prime, Sigma=Sigma_prime, J=J_prime, Omega=Lambda_prime+Sigma_prime, I=I_prime, F=F_prime, mF=mF_prime)
-                        for p in [-1, 0, 1]:
+                        for p in [-1, 0, 1]:  
                             a = 0
 
                             for intermediate_state in self.excited_state_list:
                                 Lambda_doubleprime = intermediate_state["Lambda"]
+
                                 Sigma_doubleprime = intermediate_state["Sigma"]
+                                if np.abs(Sigma_prime - Sigma_doubleprime) > 1e-1:
+                                    continue
+
                                 Omega_doubleprime = Lambda_doubleprime + Sigma_doubleprime
 
-                                for J_doubleprime in np.arange(np.abs(Omega_doubleprime), self.state.J+10): # just pick a big number for upper limit of J_doubleprime
+                                for J_doubleprime in np.arange(np.abs(Omega_doubleprime), initial_state.J+2):
                                     for F_doubleprime in np.arange(np.abs(J_doubleprime-I_doubleprime), J_doubleprime+I_doubleprime+1):
-                                        for mF_doubleprime in np.arange(-F_doubleprime, F_doubleprime+1):
-                                            intermediate_state = Hunds_case_a_state(label="intermediate state", Lambda=Lambda_doubleprime, S=S_doubleprime, Sigma=Sigma_doubleprime, J=J_doubleprime, Omega=Omega_doubleprime, I=I_doubleprime, F=F_doubleprime, mF=mF_doubleprime)
-                                            
+                                        mF_doubleprime = mF_prime - p # limited choice by 3j symbol
+                                        intermediate_state_hunds_a = Hunds_case_a_state(label="intermediate state", Lambda=Lambda_doubleprime, S=S_doubleprime, Sigma=Sigma_doubleprime, J=J_doubleprime, Omega=Omega_doubleprime, I=I_doubleprime, F=F_doubleprime, mF=mF_doubleprime)
+                                        
+                                        b = 1
+
+                                        b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, p, F_doubleprime, mF_doubleprime)
+                                        b *= intermediate_state_hunds_a.calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=final_state)
+
+                                        b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, LaserPolarization, F, mF)
+                                        c = 0
+                                        for partial_initial_state in initial_state.Hunds_case_a_list:
+                                            c += partial_initial_state["coefficient"]*(partial_initial_state["state"].calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=intermediate_state_hunds_a))
+                                        b *= c
+                                        b *= (-1)**(Lambda_doubleprime-Lambda_prime) # based on the assumption that both final and initial state are ground X state 
+
+                                        b /= intermediate_state["detuning co-rotate"]
+
+                                        a += b
+
+                                        if np.abs(-mF_prime+LaserPolarization+mF_doubleprime) < 1e-1:
                                             b = 1
 
-                                            b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, p, F_doubleprime, mF_doubleprime)
-                                            b *= intermediate_state.calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=final_state)
+                                            b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, LaserPolarization, F_doubleprime, mF_doubleprime)
+                                            b *= intermediate_state_hunds_a.calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=final_state)
 
-                                            b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, LaserPolarization, F, mF)
+                                            b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, p, F, mF)
                                             c = 0
                                             for partial_initial_state in initial_state.Hunds_case_a_list:
-                                                c += partial_initial_state["coefficient"]*(partial_initial_state["state"].calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=intermediate_state))
+                                                c += partial_initial_state["coefficient"]*(partial_initial_state["state"].calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=intermediate_state_hunds_a))
                                             b *= c
+                                            b *= (-1)**(Lambda_doubleprime-Lambda_prime) # based on the assumption that both final and initial state are ground X state 
 
-                                            b /= intermediate_state["detuning co-rotate"]
+                                            b /= intermediate_state["detuning counter-rotate"]
 
                                             a += b
 
-                                            b = 1
+                                    # print(J_doubleprime)
 
-                                            # remain to be done
+                            s += np.abs(a)**2
+                            print(s)
 
-                                            b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, p, F_doubleprime, mF_doubleprime)
-                                            b *= intermediate_state.calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=final_state)
+        scattering_rate_au = prefactor*s
+        scattering_rate = scattering_rate_au/AtomicUnit_To_seconds
+        self.scattering_rate_invs = scattering_rate
 
-                                            b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, LaserPolarization, F, mF)
-                                            c = 0
-                                            for partial_initial_state in initial_state.Hunds_case_a_list:
-                                                c += partial_initial_state["coefficient"]*(partial_initial_state["state"].calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=intermediate_state))
-                                            b *= c
-
-                                            b /= intermediate_state["detuning co-rotate"]
-
-                                            a += b
+        if print_result:
+            print(f"Photon scattering rate of state {self.state.label} (N={self.state.N}, J={self.state.J}, F={self.state.F}, mF={mF}) in {self.LaserWavelength_nm} nm (polarization={LaserPolarization}) ODT.")
+            print("----------------------------------------------------------")
+            print("Scattering rate: {:.2f} 1/s ".format(self.scattering_rate_invs))
+            # print("Heatinging rate: {:.0f} nK/s ".format(self.heating_rate_nK_s))
+            print("")
 
 
 class Rb_coupled_state:
@@ -615,6 +635,7 @@ class RbacStarkShift:
                                 a += b
 
                     s += np.abs(a)**2
+                    print(s)
 
         scattering_rate_au = prefactor*s
         scattering_rate = scattering_rate_au/AtomicUnit_To_seconds
