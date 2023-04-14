@@ -21,9 +21,9 @@ SrFacStarkShift(SrF_state_6, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=L
 #     SrFacStarkShift(state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=LaserIntensity_kW_invcm2, print_dipole_moment=False, print_polarizability=False, print_stark_shift=False, print_scattering_rate=True)
 #     break
 
-Rb_state_1 = Rb_ground_state(label="Rb 5S", energy=0, J=1/2, I=3/2, F=1, mF=0)
-Rb_state_2 = Rb_ground_state(label="Rb 5S", energy=0, J=1/2, I=3/2, F=2, mF=0)
+# Rb_state_1 = Rb_ground_state(label="Rb 5S", energy=0, J=1/2, I=3/2, F=1, mF=0)
+# Rb_state_2 = Rb_ground_state(label="Rb 5S", energy=0, J=1/2, I=3/2, F=2, mF=0)
 
-for state in [Rb_state_1, Rb_state_2]:
-    a = RbacStarkShift(state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=LaserIntensity_kW_invcm2, LaserPolarization=LaserPolarization,
-                        print_polarizability=False, print_stark_shift=True, print_scattering_rate=True)
+# for state in [Rb_state_1, Rb_state_2]:
+#     a = RbacStarkShift(state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=LaserIntensity_kW_invcm2, LaserPolarization=LaserPolarization,
+#                         print_polarizability=False, print_stark_shift=True, print_scattering_rate=True)

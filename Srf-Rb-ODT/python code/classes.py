@@ -229,69 +229,69 @@ class SrFacStarkShift:
         self.excited_state_list.append({"label":"APiThreeHalves", "Lambda":-1, "Sigma":-1/2, "transition dipole":APiThreeHalvesDipole, 
                                         "detuning co-rotate":self.DetuningAPiThreeHalves, "detuning counter-rotate":self.DetuningAPiThreeHalvesCounterRotate})
 
-        # # B Sigma state
-        # TransitionFreq = (self.BSigmaEnergy - self.XSigmaEnergy)/self.hbar
-        # BSigmaDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.BSigmaLifetime)
-        # self.excited_state_list.append({"label":"BSigma", "Lambda":0, "Sigma":1/2, "transition dipole":BSigmaDipole, 
-        #                                 "detuning co-rotate":self.DetuningBSigma, "detuning counter-rotate":self.DetuningBSigmaCounterRotate})
-        # self.excited_state_list.append({"label":"BSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":BSigmaDipole, 
-        #                                 "detuning co-rotate":self.DetuningBSigma, "detuning counter-rotate":self.DetuningBSigmaCounterRotate})
+        # B Sigma state
+        TransitionFreq = (self.BSigmaEnergy - self.XSigmaEnergy)/self.hbar
+        BSigmaDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.BSigmaLifetime)
+        self.excited_state_list.append({"label":"BSigma", "Lambda":0, "Sigma":1/2, "transition dipole":BSigmaDipole, 
+                                        "detuning co-rotate":self.DetuningBSigma, "detuning counter-rotate":self.DetuningBSigmaCounterRotate})
+        self.excited_state_list.append({"label":"BSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":BSigmaDipole, 
+                                        "detuning co-rotate":self.DetuningBSigma, "detuning counter-rotate":self.DetuningBSigmaCounterRotate})
         
-        # # C Pi state
-        # TransitionFreq = (self.CPiOneHalfEnergy - self.XSigmaEnergy)/self.hbar
-        # CPiOneHalfDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.CPiOneHalfLifetime)
-        # self.excited_state_list.append({"label":"CPi", "Lambda":1, "Sigma":-1/2, "transition dipole":CPiOneHalfDipole, 
-        #                                 "detuning co-rotate":self.DetuningCPiOneHalf, "detuning counter-rotate":self.DetuningCPiOneHalfCounterRotate})
-        # self.excited_state_list.append({"label":"CPi", "Lambda":-1, "Sigma":1/2, "transition dipole":CPiOneHalfDipole, 
-        #                                 "detuning co-rotate":self.DetuningCPiOneHalf, "detuning counter-rotate":self.DetuningCPiOneHalfCounterRotate})
+        # C Pi state
+        TransitionFreq = (self.CPiOneHalfEnergy - self.XSigmaEnergy)/self.hbar
+        CPiOneHalfDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.CPiOneHalfLifetime)
+        self.excited_state_list.append({"label":"CPi", "Lambda":1, "Sigma":-1/2, "transition dipole":CPiOneHalfDipole, 
+                                        "detuning co-rotate":self.DetuningCPiOneHalf, "detuning counter-rotate":self.DetuningCPiOneHalfCounterRotate})
+        self.excited_state_list.append({"label":"CPi", "Lambda":-1, "Sigma":1/2, "transition dipole":CPiOneHalfDipole, 
+                                        "detuning co-rotate":self.DetuningCPiOneHalf, "detuning counter-rotate":self.DetuningCPiOneHalfCounterRotate})
 
-        # # assume CPi three halves states have the same dipole moment as CPi one half states
-        # self.excited_state_list.append({"label":"CPi", "Lambda":1, "Sigma":1/2, "transition dipole":CPiOneHalfDipole, 
-        #                                 "detuning co-rotate":self.DetuningCPiThreeHalves, "detuning counter-rotate":self.DetuningCPiThreeHalvesCounterRotate}) 
-        # self.excited_state_list.append({"label":"CPi", "Lambda":-1, "Sigma":-1/2, "transition dipole":CPiOneHalfDipole,
-        #                                 "detuning co-rotate":self.DetuningCPiThreeHalves, "detuning counter-rotate":self.DetuningCPiThreeHalvesCounterRotate})
+        # assume CPi three halves states have the same dipole moment as CPi one half states
+        self.excited_state_list.append({"label":"CPi", "Lambda":1, "Sigma":1/2, "transition dipole":CPiOneHalfDipole, 
+                                        "detuning co-rotate":self.DetuningCPiThreeHalves, "detuning counter-rotate":self.DetuningCPiThreeHalvesCounterRotate}) 
+        self.excited_state_list.append({"label":"CPi", "Lambda":-1, "Sigma":-1/2, "transition dipole":CPiOneHalfDipole,
+                                        "detuning co-rotate":self.DetuningCPiThreeHalves, "detuning counter-rotate":self.DetuningCPiThreeHalvesCounterRotate})
 
-        # # D Sigma state
-        # TransitionFreq = (self.DSigmaEnergy - self.XSigmaEnergy)/self.hbar
-        # DSigmaDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.DSigmaLifetime)
-        # self.excited_state_list.append({"label":"DSigma", "Lambda":0, "Sigma":1/2, "transition dipole":DSigmaDipole, 
-        #                                 "detuning co-rotate":self.DetuningDSigma, "detuning counter-rotate":self.DetuningDSigmaCounterRotate})
-        # self.excited_state_list.append({"label":"DSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":DSigmaDipole, 
-        #                                 "detuning co-rotate":self.DetuningDSigma, "detuning counter-rotate":self.DetuningDSigmaCounterRotate})
+        # D Sigma state
+        TransitionFreq = (self.DSigmaEnergy - self.XSigmaEnergy)/self.hbar
+        DSigmaDipole = np.sqrt(3*(self.SpeedOfLight**2)*(self.e**2)/4/self.FineStructureConstant/(TransitionFreq**3)/self.DSigmaLifetime)
+        self.excited_state_list.append({"label":"DSigma", "Lambda":0, "Sigma":1/2, "transition dipole":DSigmaDipole, 
+                                        "detuning co-rotate":self.DetuningDSigma, "detuning counter-rotate":self.DetuningDSigmaCounterRotate})
+        self.excited_state_list.append({"label":"DSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":DSigmaDipole, 
+                                        "detuning co-rotate":self.DetuningDSigma, "detuning counter-rotate":self.DetuningDSigmaCounterRotate})
 
-        # # F Sigma state
-        # FSigmaDipole = 0.4
-        # self.excited_state_list.append({"label":"FSigma", "Lambda":0, "Sigma":1/2, "transition dipole":FSigmaDipole, 
-        #                                 "detuning co-rotate":self.DetuningFSigma, "detuning counter-rotate":self.DetuningFSigmaCounterRotate})
-        # self.excited_state_list.append({"label":"FSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":FSigmaDipole, 
-        #                                 "detuning co-rotate":self.DetuningFSigma, "detuning counter-rotate":self.DetuningFSigmaCounterRotate})
+        # F Sigma state
+        FSigmaDipole = 0.4
+        self.excited_state_list.append({"label":"FSigma", "Lambda":0, "Sigma":1/2, "transition dipole":FSigmaDipole, 
+                                        "detuning co-rotate":self.DetuningFSigma, "detuning counter-rotate":self.DetuningFSigmaCounterRotate})
+        self.excited_state_list.append({"label":"FSigma", "Lambda":0, "Sigma":-1/2, "transition dipole":FSigmaDipole, 
+                                        "detuning co-rotate":self.DetuningFSigma, "detuning counter-rotate":self.DetuningFSigmaCounterRotate})
 
-        # # G Pi state
-        # GPiDipole = 0.5
-        # self.excited_state_list.append({"label":"GPi", "Lambda":1, "Sigma":-1/2, "transition dipole":GPiDipole, 
-        #                                 "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
-        # self.excited_state_list.append({"label":"GPi", "Lambda":-1, "Sigma":1/2, "transition dipole":GPiDipole, 
-        #                                 "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
-        # self.excited_state_list.append({"label":"GPi", "Lambda":1, "Sigma":1/2, "transition dipole":GPiDipole, 
-        #                                 "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
-        # self.excited_state_list.append({"label":"GPi", "Lambda":-1, "Sigma":-1/2, "transition dipole":GPiDipole, 
-        #                                 "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
+        # G Pi state
+        GPiDipole = 0.5
+        self.excited_state_list.append({"label":"GPi", "Lambda":1, "Sigma":-1/2, "transition dipole":GPiDipole, 
+                                        "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
+        self.excited_state_list.append({"label":"GPi", "Lambda":-1, "Sigma":1/2, "transition dipole":GPiDipole, 
+                                        "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
+        self.excited_state_list.append({"label":"GPi", "Lambda":1, "Sigma":1/2, "transition dipole":GPiDipole, 
+                                        "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
+        self.excited_state_list.append({"label":"GPi", "Lambda":-1, "Sigma":-1/2, "transition dipole":GPiDipole, 
+                                        "detuning co-rotate":self.DetuningGPi, "detuning counter-rotate":self.DetuningGPiCounterRotate})
 
         # H state
         HDipole = 2.2934*self.DebyeToAtomicUnit
 
-        # if print_result:
-        #     print("Transition dipole moments from X state.")
-        #     print("---------------------------------------")
-        #     print("A Pi one half state: {:.3f} a.u.".format(APiOneHalfDipole))
-        #     print("A Pi three halves state: {:.3f} a.u.".format(APiThreeHalvesDipole))
-        #     print("B Sigma state: {:.3f} a.u.".format(BSigmaDipole))
-        #     print("C Pi one half state: {:.3f} a.u.".format(CPiOneHalfDipole))
-        #     print("D Sigma state: {:.3f} a.u.".format(DSigmaDipole))
-        #     print("F Sigma state: {:.3f} a.u.".format(FSigmaDipole))
-        #     print("G Pi state: {:.3f} a.u.".format(GPiDipole))
-        #     print("H state: {:.3f} a.u.".format(HDipole))
-        #     print("")
+        if print_result:
+            print("Transition dipole moments from X state.")
+            print("---------------------------------------")
+            print("A Pi one half state: {:.3f} a.u.".format(APiOneHalfDipole))
+            print("A Pi three halves state: {:.3f} a.u.".format(APiThreeHalvesDipole))
+            print("B Sigma state: {:.3f} a.u.".format(BSigmaDipole))
+            print("C Pi one half state: {:.3f} a.u.".format(CPiOneHalfDipole))
+            print("D Sigma state: {:.3f} a.u.".format(DSigmaDipole))
+            print("F Sigma state: {:.3f} a.u.".format(FSigmaDipole))
+            print("G Pi state: {:.3f} a.u.".format(GPiDipole))
+            print("H state: {:.3f} a.u.".format(HDipole))
+            print("")
 
     def calculate_polarizability(self, print_result=True):
         self.polarizability_dict = {}
@@ -361,18 +361,6 @@ class SrFacStarkShift:
             print("")
 
     def calculate_scattering_rate(self, LaserPolarization=0, print_result=True):
-        # HartreeTouK = 315775.02480407e6 # convert Hartree to uK
-        # u = self.StarkShift_dict["scalar shift uK"]/HartreeTouK
-        # Delta = self.DetuningAPiOneHalf
-        # Gamma_sc = u/Delta*(1/(self.APiOneHalfLifetime_ns/1e9)) # scattering rate in 1/s
-        # self.scattering_rate_invs = np.abs(Gamma_sc)
-
-        # hbar = 1.05457182e-34 # SI units
-        # k = 2*np.pi/(self.LaserWavelength_nm/1e9) # 1/m
-        # m = 106.62*1.66053906660e-27 # kg
-        # kB = 1.380649e-23 # J/K
-        # T_rec = ((hbar*k)**2)/m/kB # recoil temperature, K
-        # self.heating_rate_nK_s = T_rec*self.scattering_rate_invs/3*1e9 # nK/s
 
         LaserEnergy = (1/(self.LaserWavelength_nm/1e9)*299792458*2*np.pi)/(4.134137336e16) # laser energy in atomic units
         permittivity = 1/(4*np.pi) # permittivity in atomic units
@@ -401,7 +389,7 @@ class SrFacStarkShift:
         s = 0
 
         for Sigma_prime in np.arange(-S_prime, S_prime+1):
-            for J_prime in np.arange(1/2, initial_state.J+3):
+            for J_prime in np.arange(np.abs(Sigma_prime+Lambda_prime), initial_state.J+3):
                 for F_prime in np.arange(np.abs(J_prime-I_prime), J_prime+I_prime+1):
                     for mF_prime in np.arange(-F_prime, F_prime+1):
                         final_state = Hunds_case_a_state(label="final state", Lambda=Lambda_prime, S=S_prime, Sigma=Sigma_prime, J=J_prime, Omega=Lambda_prime+Sigma_prime, I=I_prime, F=F_prime, mF=mF_prime)
