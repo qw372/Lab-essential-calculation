@@ -126,6 +126,12 @@ class Hunds_case_b_state:
 class SrFacStarkShift:
     def __init__(self, state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=0, LaserPolarization=0, print_dipole_moment=False, print_polarizability=True, print_stark_shift=True, print_scattering_rate=True):
         self.state = state
+        assert isinstance(self.state, Hunds_case_b_state)
+        self.Jmax = 0
+        for Hunds_case_a in self.state.Hunds_case_a_list:
+            if Hunds_case_a["state"].J > self.Jmax:
+                self.Jmax = Hunds_case_a["state"].J
+
         self.LaserWavelength_nm = LaserWavelength_nm
         self.LaserIntensity_kW_invcm2 = LaserIntensity_kW_invcm2
 
@@ -389,7 +395,7 @@ class SrFacStarkShift:
         s = 0
 
         for Sigma_prime in np.arange(-S_prime, S_prime+1):
-            for J_prime in np.arange(np.abs(Sigma_prime+Lambda_prime), initial_state.J+3):
+            for J_prime in np.arange(np.abs(Sigma_prime+Lambda_prime), self.Jmax+3): # J-mixing can make initial state contain J+1 states. after a two photon process, Jprime can get to J+3 at most
                 for F_prime in np.arange(np.abs(J_prime-I_prime), J_prime+I_prime+1):
                     for mF_prime in np.arange(-F_prime, F_prime+1):
                         final_state = Hunds_case_a_state(label="final state", Lambda=Lambda_prime, S=S_prime, Sigma=Sigma_prime, J=J_prime, Omega=Lambda_prime+Sigma_prime, I=I_prime, F=F_prime, mF=mF_prime)
@@ -405,58 +411,63 @@ class SrFacStarkShift:
 
                                 Omega_doubleprime = Lambda_doubleprime + Sigma_doubleprime
 
-                                for J_doubleprime in np.arange(np.abs(Omega_doubleprime), initial_state.J+2):
+                                for J_doubleprime in np.arange(np.abs(Omega_doubleprime), self.Jmax+2): # J-mixing can make initial state contain J+1 states
                                     for F_doubleprime in np.arange(np.abs(J_doubleprime-I_doubleprime), J_doubleprime+I_doubleprime+1):
-                                        mF_doubleprime = mF_prime - p # limited choice by 3j symbol
-                                        intermediate_state_hunds_a = Hunds_case_a_state(label="intermediate state", Lambda=Lambda_doubleprime, S=S_doubleprime, Sigma=Sigma_doubleprime, J=J_doubleprime, Omega=Omega_doubleprime, I=I_doubleprime, F=F_doubleprime, mF=mF_doubleprime)
-                                        
-                                        b = 1
+                                        for mF_doubleprime in np.arange(-F_doubleprime, F_doubleprime+1):
+                                            intermediate_state_hunds_a = Hunds_case_a_state(label="intermediate state", Lambda=Lambda_doubleprime, S=S_doubleprime, Sigma=Sigma_doubleprime, J=J_doubleprime, Omega=Omega_doubleprime, I=I_doubleprime, F=F_doubleprime, mF=mF_doubleprime)
+                                            
+                                            if np.abs(-mF_prime+p+mF_doubleprime) < 1e-1:
+                                                b = 1
 
-                                        b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, p, F_doubleprime, mF_doubleprime)
-                                        b *= intermediate_state_hunds_a.calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=final_state)
+                                                b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, p, F_doubleprime, mF_doubleprime)
+                                                b *= intermediate_state_hunds_a.calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=final_state)
 
-                                        b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, LaserPolarization, F, mF)
-                                        c = 0
-                                        for partial_initial_state in initial_state.Hunds_case_a_list:
-                                            c += partial_initial_state["coefficient"]*(partial_initial_state["state"].calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=intermediate_state_hunds_a))
-                                        b *= c
-                                        b *= (-1)**(Lambda_doubleprime-Lambda_prime) # based on the assumption that both final and initial state are ground X state 
+                                                b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, LaserPolarization, F, mF)
+                                                c = 0
+                                                for partial_initial_state in initial_state.Hunds_case_a_list:
+                                                    c += partial_initial_state["coefficient"]*(partial_initial_state["state"].calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=intermediate_state_hunds_a))
+                                                b *= c
+                                                b *= (-1)**(Lambda_doubleprime-Lambda_prime) # based on the assumption that both final and initial state are ground X state 
 
-                                        b /= intermediate_state["detuning co-rotate"]
+                                                b /= intermediate_state["detuning co-rotate"]
 
-                                        a += b
+                                                a += b
 
-                                        if np.abs(-mF_prime+LaserPolarization+mF_doubleprime) < 1e-1:
-                                            b = 1
+                                            if np.abs(-mF_prime+LaserPolarization+mF_doubleprime) < 1e-1:
+                                                b = 1
 
-                                            b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, LaserPolarization, F_doubleprime, mF_doubleprime)
-                                            b *= intermediate_state_hunds_a.calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=final_state)
+                                                b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, LaserPolarization, F_doubleprime, mF_doubleprime)
+                                                b *= intermediate_state_hunds_a.calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=final_state)
 
-                                            b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, p, F, mF)
-                                            c = 0
-                                            for partial_initial_state in initial_state.Hunds_case_a_list:
-                                                c += partial_initial_state["coefficient"]*(partial_initial_state["state"].calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=intermediate_state_hunds_a))
-                                            b *= c
-                                            b *= (-1)**(Lambda_doubleprime-Lambda_prime) # based on the assumption that both final and initial state are ground X state 
+                                                b *= wigner_eckart_coefficient(F_doubleprime, mF_doubleprime, 1, p, F, mF)
+                                                c = 0
+                                                for partial_initial_state in initial_state.Hunds_case_a_list:
+                                                    c += partial_initial_state["coefficient"]*(partial_initial_state["state"].calculate_dipole_moment(dipole_moment_Lambda=intermediate_state["transition dipole"], state_prime=intermediate_state_hunds_a))
+                                                b *= c
+                                                b *= (-1)**(Lambda_doubleprime-Lambda_prime) # based on the assumption that both final and initial state are ground X state 
 
-                                            b /= intermediate_state["detuning counter-rotate"]
+                                                b /= intermediate_state["detuning counter-rotate"]
 
-                                            a += b
-
-                                    # print(J_doubleprime)
+                                                a += b
 
                             s += np.abs(a)**2
-                            print(s)
 
         scattering_rate_au = prefactor*s
         scattering_rate = scattering_rate_au/AtomicUnit_To_seconds
         self.scattering_rate_invs = scattering_rate
 
+        hbar = 1.05457182e-34 # SI units
+        k = 2*np.pi/(self.LaserWavelength_nm/1e9) # 1/m
+        m = 106.62*1.66053906660e-27 # kg
+        kB = 1.380649e-23 # J/K
+        T_rec = ((hbar*k)**2)/m/kB # recoil temperature, K
+        self.heating_rate_nK_s = T_rec*self.scattering_rate_invs/3*1e9 # nK/s
+
         if print_result:
             print(f"Photon scattering rate of state {self.state.label} (N={self.state.N}, J={self.state.J}, F={self.state.F}, mF={mF}) in {self.LaserWavelength_nm} nm (polarization={LaserPolarization}) ODT.")
             print("----------------------------------------------------------")
-            print("Scattering rate: {:.2f} 1/s ".format(self.scattering_rate_invs))
-            # print("Heatinging rate: {:.0f} nK/s ".format(self.heating_rate_nK_s))
+            print("Scattering rate: {:.3f} 1/s ".format(self.scattering_rate_invs))
+            print("Heatinging rate: {:.1f} nK/s ".format(self.heating_rate_nK_s))
             print("")
 
 
@@ -623,7 +634,6 @@ class RbacStarkShift:
                                 a += b
 
                     s += np.abs(a)**2
-                    print(s)
 
         scattering_rate_au = prefactor*s
         scattering_rate = scattering_rate_au/AtomicUnit_To_seconds
