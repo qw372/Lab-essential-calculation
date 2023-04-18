@@ -4,11 +4,6 @@ from scipy.optimize import fsolve
 import os, time
 from classes import *
 
-# issues:
-# 1. two ODT beams can have different size
-# 2. gravity changes trap depth but not trap size/cloud size
-
-
 def trap_gravity(x, optical_trap_depth, sigma, m):
     """
     calculate ODT trap potential, as a function of position x, under the influence of gravity
@@ -27,7 +22,7 @@ def trap_gravity(x, optical_trap_depth, sigma, m):
 
     r = -(optical_trap_depth/1.e6)*kB*np.exp(-x**2/2/sigma**2) + m*g*x
 
-    return r/kB*1e6
+    return r/kB*1e6 # in uK
 
 def trap_gravity_derivative(x, optical_trap_depth, sigma, m):
     """
@@ -47,7 +42,7 @@ def trap_gravity_derivative(x, optical_trap_depth, sigma, m):
 
     r = (optical_trap_depth/1.e6)*kB*np.exp(-x[0]**2/2/sigma**2)*(x[0]/sigma**2) + m*g
 
-    return r/kB
+    return r/kB # in K/m
 
 
 def BichromaticTrap(target_shift_Rb, target_shift_SrF, wavelength_laser2, radius, print_result=True):
@@ -100,7 +95,7 @@ def BichromaticTrap(target_shift_Rb, target_shift_SrF, wavelength_laser2, radius
     #--------------------------------------------------------------------------------------------------------------------------
 
 
-    # calculte trap depth tilt caused by gravity
+    # calculte trap depth reduce caused by gravity
     # ------------------------------------------------------------------------------------------------------------------------
     f = lambda x: trap_gravity_derivative(x, optical_trap_depth=SrF_shift_final, sigma=radius/2, m=SrF_mass)
     root1 = fsolve(f, [0])[0] # um
@@ -170,7 +165,7 @@ headers = ["laser2 wavelength (nm)", "1064 nm laser power (W)", "laser2 power (W
             "Rb peak Stark shift ($\mu$K)", "Rb trap depth w/ gravity ($\mu$K)", "Rb scattering rate (1/s)", "Rb heating rate (nK/s)"]
 table = np.array([])
 t0 = time.time()
-for wavelength_laser2 in range(690, 761, 2):
+for wavelength_laser2 in range(690, 761, 10):
     d = BichromaticTrap(target_shift_Rb, target_shift_SrF, wavelength_laser2, radius, print_result=False)
     for key in headers:
         val = "{:#.3g}".format(d[key])
@@ -185,7 +180,9 @@ df = pd.DataFrame(table, columns=headers)
 styler = df.style.hide(axis='index')
 t = styler.to_latex(hrules=True, column_format=">{\centering}m{4.5em}"*(len(headers)-1)+">{\centering\\arraybackslash}m{4.5em}")
 
-dir_path = os.path.dirname(os.path.realpath(__file__)) + "/BichromaticTrapTables/"
+dir_path = os.path.dirname(os.path.realpath(__file__)) #+ "/BichromaticTrapTables/"
+if not os.path.exists(dir_path):
+    os.mkdir(dir_path) # make directory if it doesn't exist
 with open(dir_path+f'BichromaticTrap_{target_shift_SrF}_{target_shift_Rb}.tex', 'w') as f:
     f.write(t)
 

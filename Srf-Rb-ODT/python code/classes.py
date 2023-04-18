@@ -2,11 +2,20 @@ import numpy as np
 from sympy.physics.wigner import *
 
 def wigner_eckart_coefficient(j, m, k, p, J_prime, mprime):
+    """
+    Brown & Carrington, Eq. 5.172
+    """
+    
     r = (-1)**(j-m)*wigner_3j(j, k, J_prime, -m, p, mprime)
     return float(r)
 
 def spectator_theorem_coefcient(j1, j2, j12, k1, j1prime, j2prime, j12prime):
+    """
+    Brown & Carrington, Eq. 5.174
+    """
+
     if np.abs(j2 - j2prime) < 1e-6:
+        # if J2 and J2prime are the same, then the coefficient is non-zero
         r = (-1)**(j12prime+j1+k1+j2)*np.sqrt(2*j12+1)*np.sqrt(2*j12prime+1)*wigner_6j(j1prime, j12prime, j2, j12, j1, k1)
         return float(r)
     else:
@@ -31,6 +40,11 @@ class Hunds_case_a_state:
         pass
 
     def calculate_dipole_moment(self, dipole_moment_Lambda, state_prime):
+        """
+        Calculate reduced dipole moment between two Hund's a states.
+        See My writeup: https://www.overleaf.com/read/yqmjbrwwdqvq, Eq. 21
+        """
+        
         Lambda = self.Lambda
         S = self.S
         Sigma = self.Sigma
@@ -87,6 +101,10 @@ class Hunds_case_b_state:
         pass
 
     def convert_to_Hunds_case_a(self, JMixing):
+        """
+        Convert a Hund's b state to Hund's a states, including J-mixing factors.
+        """
+
         # JMixing is a list of dictionaries that saves J mixing infomation,
         # in form of [{"mixing coefficient": a number, "J": J}, ...]
 
@@ -124,9 +142,13 @@ class Hunds_case_b_state:
 
 
 class SrFacStarkShift:
-    def __init__(self, state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=0, LaserPolarization=0, print_dipole_moment=False, print_polarizability=True, print_stark_shift=True, print_scattering_rate=True):
+    def __init__(self, state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=0, LaserPolarization=0, print_dipole_moment=False, 
+                 print_polarizability=True, print_stark_shift=True, print_scattering_rate=True):
         self.state = state
         assert isinstance(self.state, Hunds_case_b_state)
+        assert LaserPolarization in [-1, 0, 1]
+
+        # find out the max J value in the mixed state. It determines max J state we need to include for excited states
         self.Jmax = 0
         for Hunds_case_a in self.state.Hunds_case_a_list:
             if Hunds_case_a["state"].J > self.Jmax:
@@ -304,15 +326,13 @@ class SrFacStarkShift:
         for K in [0, 1, 2]:
             partial_polarizability = 0
             for excited_state in self.excited_state_list:
-                # if excited_state["label"] not in ["APiOneHalf", "APiThreeHalves"]:
-                #     continue
 
                 Lambda_prime = excited_state["Lambda"]
                 Sigma_prime = excited_state["Sigma"]
                 Omega_prime = Lambda_prime + Sigma_prime
 
-                for J_prime in np.arange(np.abs(Omega_prime), self.state.J+10):
-                    # just pick a big number for upper limit of J_prime
+                for J_prime in np.arange(np.abs(Omega_prime), self.Jmax+2):
+                    # the upper limit of J_prime is Jmax+1
 
                     for F_prime in np.arange(np.abs(J_prime-self.state.I), J_prime+self.state.I+1):
                         partial_dipole = 0
@@ -373,7 +393,7 @@ class SrFacStarkShift:
         kw_invcm2_ToAtomicUnit = 1/((4.3597447222071e-18)**2/(1.054571817e-34)/1e3/(5.29177210903e-9)**2)
         AtomicUnit_To_seconds = 2.4188843265857e-17 # seconds
         LaserIntensity = self.LaserIntensity_kW_invcm2*kw_invcm2_ToAtomicUnit # Laser intensity in atomic units
-        prefactor = LaserIntensity*LaserEnergy**3/(6*np.pi)/permittivity**2/self.SpeedOfLight**4 # prefactor for converting polarizability to ac Stark shift
+        prefactor = LaserIntensity*LaserEnergy**3/(6*np.pi)/permittivity**2/self.SpeedOfLight**4
 
         initial_state = self.state # assume the initial state to be self.state
         S = initial_state.S
@@ -407,6 +427,7 @@ class SrFacStarkShift:
 
                                 Sigma_doubleprime = intermediate_state["Sigma"]
                                 if np.abs(Sigma_prime - Sigma_doubleprime) > 1e-1:
+                                    # if Sigma_doubleprime is not equal to Sigma_prime, then the intermediate state is not allowed
                                     continue
 
                                 Omega_doubleprime = Lambda_doubleprime + Sigma_doubleprime
@@ -416,7 +437,9 @@ class SrFacStarkShift:
                                         for mF_doubleprime in np.arange(-F_doubleprime, F_doubleprime+1):
                                             intermediate_state_hunds_a = Hunds_case_a_state(label="intermediate state", Lambda=Lambda_doubleprime, S=S_doubleprime, Sigma=Sigma_doubleprime, J=J_doubleprime, Omega=Omega_doubleprime, I=I_doubleprime, F=F_doubleprime, mF=mF_doubleprime)
                                             
+                                            # co-rotating term
                                             if np.abs(-mF_prime+p+mF_doubleprime) < 1e-1:
+                                                # the intermediate state is only allowed if mF_prime = mF_doubleprime + p
                                                 b = 1
 
                                                 b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, p, F_doubleprime, mF_doubleprime)
@@ -433,7 +456,9 @@ class SrFacStarkShift:
 
                                                 a += b
 
+                                            # counter-rotating term
                                             if np.abs(-mF_prime+LaserPolarization+mF_doubleprime) < 1e-1:
+                                                # the intermediate state is only allowed if mF_prime = mF_doubleprime + laser polarization
                                                 b = 1
 
                                                 b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, LaserPolarization, F_doubleprime, mF_doubleprime)
@@ -452,8 +477,8 @@ class SrFacStarkShift:
 
                             s += np.abs(a)**2
 
-        scattering_rate_au = prefactor*s
-        scattering_rate = scattering_rate_au/AtomicUnit_To_seconds
+        scattering_rate_au = prefactor*s # scattering rate in atomic units
+        scattering_rate = scattering_rate_au/AtomicUnit_To_seconds # convert scattering rate to 1/s
         self.scattering_rate_invs = scattering_rate
 
         hbar = 1.05457182e-34 # SI units
@@ -509,6 +534,9 @@ class Rb_ground_state:
 class RbacStarkShift:
     def __init__(self, state, LaserWavelength_nm=1064, LaserIntensity_kW_invcm2=0, LaserPolarization=0,
                  print_polarizability=True, print_stark_shift=True, print_scattering_rate=True):
+        assert LaserPolarization in [-1, 0, 1]
+        assert isinstance(state, Rb_ground_state)
+
         self.state = state
         self.LaserWavelength_nm = LaserWavelength_nm
         self.LaserIntensity_kW_invcm2 = LaserIntensity_kW_invcm2
@@ -584,7 +612,7 @@ class RbacStarkShift:
         AtomicUnit_To_seconds = 2.4188843265857e-17 # seconds
         SpeedOfLight = 137.035999084 # in atomic units
         LaserIntensity = self.LaserIntensity_kW_invcm2*kw_invcm2_ToAtomicUnit # Laser intensity in atomic units
-        prefactor = LaserIntensity*LaserEnergy**3/(6*np.pi)/permittivity**2/SpeedOfLight**4 # prefactor for converting polarizability to ac Stark shift
+        prefactor = LaserIntensity*LaserEnergy**3/(6*np.pi)/permittivity**2/SpeedOfLight**4
 
         initial_state = self.state # assume the initial state to be self.state
         final_state = self.state # assume the final state is in ground electronic state, we only use J from self.state, not F
@@ -605,6 +633,8 @@ class RbacStarkShift:
 
                         for F_doubleprime in np.arange(np.abs(J_doubleprime-I), J_doubleprime+I+1):
                             for mF_doubleprime in np.arange(-F_doubleprime, F_doubleprime+1):
+
+                                # co-rotating term
                                 b = 1
 
                                 b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, p, F_doubleprime, mF_doubleprime)
@@ -619,6 +649,7 @@ class RbacStarkShift:
 
                                 a += b
 
+                                # counter-rotating term
                                 b = 1
 
                                 b *= wigner_eckart_coefficient(F_prime, mF_prime, 1, LaserPolarization, F_doubleprime, mF_doubleprime)
