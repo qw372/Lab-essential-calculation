@@ -57,6 +57,7 @@ def sort_eigenstates(energies: np.ndarray, states: np.ndarray, assert_unique: bo
 def unitarity_rate(T: float, centrifugal_barrier: float) -> float:
     """
     Calculate the unitarity collision rate a molecular sample at temperature T.
+    See Thomas's writeup.
 
     Args:
         T: molecule temperature in uK
