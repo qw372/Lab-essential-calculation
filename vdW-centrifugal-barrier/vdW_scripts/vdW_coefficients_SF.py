@@ -14,19 +14,19 @@ Following Eq. (82) from https://arxiv.org/pdf/1703.02833.pdf
 """
 
 
-def _reduced_EDM(J1: int, Omega1: int, J2: int, Omega2: int, d: float) -> float:
+def _reduced_EDM(J: int, Omega: int, Jprime: int, Omegaprime: int, d: float) -> float:
     """
-    Calculate reduced EDM matrix element <J1, Omage1 || d || J2, Omega2> in atomic units
+    Calculate reduced EDM matrix element <J, Omage1 || d || Jprime, Omegaprime> in atomic units
 
     Args:
-        J1, J2: rotational angular momentum
-        Omega1, Omega2: projection of rotational angular momentum on internuclear axis
+        J, Jprime: rotational angular momentum
+        Omega, Omegaprime: projection of rotational angular momentum on internuclear axis
         d: body-frame dipole moment in atomic units
     Returns:
         reduced EDM matrix element in atomic units
     """
 
-    return (-1)**J1 * np.sqrt((2*J1+1)*(2*J2+1)) * wigner_3j(J1, 1, J2, -Omega1, 0, Omega2) * d
+    return (-1)**(J-Omega) * np.sqrt((2*J+1)*(2*Jprime+1)) * wigner_3j(J, 1, Jprime, -Omega, 0, Omegaprime) * d
 
 def W_SF_coefficient(JA: int, MA: int, MA_prime: int, JB: int, MB: int, MB_prime: int, 
                      L: int, ML: int, L_prime: int, ML_prime: int) -> float:
@@ -50,7 +50,7 @@ def W_SF_coefficient(JA: int, MA: int, MA_prime: int, JB: int, MB: int, MB_prime
     if MA_prime + MB_prime + ML_prime != MA + MB + ML:
         return 0
 
-    W = 1
+    W = -1
     W *= (-1)**(lB_prime + lB + 2*JA + 2*JB)
     W *= np.sqrt(np.math.factorial(2*l_prime+1) * np.math.factorial(2*l+1)) 
     W /= np.sqrt(np.math.factorial(2*lA_prime) * np.math.factorial(2*lB_prime))

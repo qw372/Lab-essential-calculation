@@ -59,9 +59,9 @@ def centrigufal_barrier(C6: float, l: float, unit_in_uK: bool = False) -> float:
         centrifugal barrier in atomic units
     """    
 
-    assert l >= 0 and C6 >= 0
+    assert l >= 0 and C6 <= 0
 
-    b = (l*(l+1)/mu)**1.5 / np.sqrt(54*C6)
+    b = (l*(l+1)/mu)**1.5 / np.sqrt(54*np.abs(C6))
  
     return b * Hartree_to_uk if unit_in_uK else b
 
