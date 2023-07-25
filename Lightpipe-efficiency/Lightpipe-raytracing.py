@@ -483,3 +483,7 @@ sys.plot_trace()
 sys.plot_optic_compoents()
 sys.show_plot()
 
+# To-do:
+# 1. plot optical components
+# 2. implement container
+# 3. implement more light sources and optic components
