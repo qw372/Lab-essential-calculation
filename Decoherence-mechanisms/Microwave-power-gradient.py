@@ -42,9 +42,20 @@ def integrated_signal_3D(t_list, alpha, x0, y0, z0):
     density_dist = lambda x, y, z: np.exp(-0.5*((x-x0)/sigma_x)**2 - 0.5*((y-y0)/sigma_y)**2 - 0.5*((z-z0)/sigma_z)**2) / (sigma_x*sigma_y*sigma_z*(2*np.pi)**(3/2)) # gaussian
 
     signal = np.empty(len(t_list))
+    x_list = np.linspace(x0-sigma_x*3, x0+sigma_x*3, 100)
+    delta_x = x_list[1] - x_list[0]
+    y_list = np.linspace(y0-sigma_y*3, y0+sigma_y*3, 100)
+    delta_y = y_list[1] - y_list[0]
+    z_list = np.linspace(z0-sigma_z*3, z0+sigma_z*3, 100)
+    delta_z = z_list[1] - z_list[0]
+    x_list_repeated = np.repeat(x_list, len(y_list)*len(z_list))
+    y_list_repeated = np.tile(np.repeat(y_list, len(z_list)), len(x_list))
+    z_list_repeated = np.tile(z_list, len(x_list)*len(y_list))
     for i, t in enumerate(t_list):
         integrand = lambda x, y, z: Rabi_oscillation(t, x, y, z) * density_dist(x, y, z)
-        signal[i] = integrate.tplquad(integrand, z0-sigma_z*3, z0+sigma_z*3, y0-sigma_y*3, y0+sigma_y*3, x0-sigma_x*3, x0+sigma_x*3, epsabs=1e-2, epsrel=1e-2)[0]
+        # signal[i] = integrate.tplquad(integrand, z0-sigma_z*3, z0+sigma_z*3, y0-sigma_y*3, y0+sigma_y*3, x0-sigma_x*3, x0+sigma_x*3, epsabs=1e-2, epsrel=1e-2)[0]
+        # manual intergration, since this is a well-defined function and scipy's tplquad is too slow
+        signal[i] = integrand(x_list_repeated, y_list_repeated, z_list_repeated).sum() * delta_x * delta_y * delta_z 
 
     return signal
 
@@ -55,7 +66,7 @@ def eval_signal_3D(t_list, alpha_list, x0_list):
     param_list = list(zip(t_list_repeated, alpha_list_repeated, x0_list_repeated, x0_list_repeated, x0_list_repeated))
 
     if __name__ == "__main__":
-        with Pool(12) as p:
+        with Pool(8) as p:
             signal = np.array(p.starmap(integrated_signal_3D, param_list))
 
             signal = np.reshape(signal, (len(alpha_list), len(x0_list), len(t_list)))
@@ -66,7 +77,7 @@ if __name__ == "__main__":
     x0_list = [0, wavelength/16, wavelength/8, wavelength*3/16, wavelength/4]
     # x0_list = [wavelength/16, wavelength/8, wavelength*3/16]
     # alpha_list = [0.2, 0.4, 0.6, 0.8]
-    alpha_list = [0.2, 0.4]
+    alpha_list = [0.1, 0.2, 0.3, 0.4]
     t_list = np.linspace(0, 2*np.pi/Omega0*5, 50)
     fit = True
 
@@ -85,15 +96,16 @@ if __name__ == "__main__":
                 tau = popt[1]
                 if tau < t_list[-1] * 3:
                     # otherwise the fit won't be accurate, since thre's not enough amplitude change within the fitted time range
-                    axs[i, j].text(0.75, 0.9, r'$\Omega_0\tau=2\pi\times${:.2f}'.format(Omega0*popt[1]/(2*np.pi)), horizontalalignment='center', verticalalignment='center', transform=axs[i, j].transAxes)
+                    axs[i, j].text(0.75, 0.9, r'$\Omega\tau=2\pi\times${:.2f}'.format(popt[0]*popt[1]/(2*np.pi)), horizontalalignment='center', verticalalignment='center', transform=axs[i, j].transAxes)
 
             if i == 0:
-                axs[i, j].set_title('x0 = {:.3f} $\lambda$'.format(x0/wavelength))
+                axs[i, j].set_title(r'$x_0=y_0=z_0=${:.3f} $\lambda$'.format(x0/wavelength))
 
             if i == len(alpha_list) - 1:
                 axs[i, j].set_xlabel('Time (ms)')
 
             if j == 0:
-                axs[i, j].set_ylabel('Integrated signal\n'+r'($\alpha$ = {:.1f})'.format(alpha))            
+                axs[i, j].set_ylabel('Integrated signal\n'+r'($\alpha$ = {:.1f})'.format(alpha), fontsize=11)            
 
+    plt.savefig('Microwave-power-gradient.png', dpi=300)
     plt.show()
