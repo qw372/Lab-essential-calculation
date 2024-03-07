@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
 Omega0 = 2*np.pi*10e3 # Hz, center Rabi frequency
-sigma_Omega = Omega0 * 0.3 # std of Rabi frequency
+sigma_Omega = Omega0 * 0.5 # std of Rabi frequency
 
 cycle = 5
 t_span = [0, 2*np.pi/Omega0*cycle] # s, time span
-t_eval = np.linspace(t_span[0], t_span[1], cycle*20)
+t_eval = np.linspace(t_span[0], t_span[1], cycle*50)
 # t_noise = np.linspace(t_span[0], t_span[1], cycle*100)
 
-rng = np.random.default_rng(seed=12345)
+rng = np.random.default_rng(seed=123)
 
 def evaluete():
     # Omega_noise = rng.normal(Omega0, sigma_Omega, len(t_noise))
@@ -32,5 +32,6 @@ for i in range(num):
         p = np.vstack((p, evaluete()))
 
 plt.errorbar(t_eval, np.mean(p, axis=0), yerr=np.std(p, axis=0)/np.sqrt(num))
+# plt.plot(t_eval, p) 
 # plt.plot(Omega_noise+Omega0)
 plt.show()
