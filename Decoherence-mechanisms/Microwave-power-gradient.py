@@ -7,7 +7,7 @@ from multiprocessing import Pool
 wavelength = 20 # mm, microwave wavelength
 k = 2*np.pi/wavelength
 Omega0 = 2*np.pi*35 # kHz, peak Rabi frequency
-sigma_x = 1.1 # mm, ODT cloud size
+sigma_x = 0.55 # mm, ODT cloud size
 sigma_y = sigma_x
 sigma_z = sigma_x
 
@@ -21,9 +21,12 @@ def integrated_signal_1D(t_list, alpha, x0):
     density_dist = lambda x: np.exp(-0.5*((x-x0)/sigma_x)**2) / (sigma_x*(2*np.pi)**(1/2)) # gaussian
 
     signal = np.empty(len(t_list))
+    x_list = np.linspace(x0-sigma_x*5, x0+sigma_x*5, 500)
+    delta_x = x_list[1] - x_list[0]
     for i, t in enumerate(t_list):
         integrand = lambda x: Rabi_oscillation(t, x) * density_dist(x)
-        signal[i] = integrate.quad(integrand, x0-sigma_x*5, x0+sigma_x*5, epsabs=1e-3, epsrel=1e-3)[0]
+        # signal[i] = integrate.quad(integrand, x0-sigma_x*5, x0+sigma_x*5, epsabs=1e-3, epsrel=1e-3)[0]
+        signal[i] = integrand(x_list).sum() * delta_x
 
     return signal
 
@@ -80,10 +83,14 @@ if __name__ == "__main__":
     alpha_list = [0.1, 0.2, 0.3, 0.4]
     t_list = np.linspace(0, 2*np.pi/Omega0*5, 50)
     fit = True
+    config = "1D"
 
-    # signal_1D = eval_signal_1D(t_list, alpha_list, x0_list)
-    signal_3D = eval_signal_3D(t_list, alpha_list, x0_list)
-    signal = signal_3D
+    if config == "3D":
+        signal = eval_signal_3D(t_list, alpha_list, x0_list)
+    elif config == "1D":
+        signal = eval_signal_1D(t_list, alpha_list, x0_list)
+    else:
+        print("invalid")
 
     fig, axs = plt.subplots(len(alpha_list), len(x0_list), sharex=True, sharey=True, figsize=(3*len(x0_list), 2*len(alpha_list)), layout='tight')
     for i, alpha in enumerate(alpha_list):
@@ -99,7 +106,10 @@ if __name__ == "__main__":
                     axs[i, j].text(0.75, 0.9, r'$\Omega\tau=2\pi\times${:.2f}'.format(popt[0]*popt[1]/(2*np.pi)), horizontalalignment='center', verticalalignment='center', transform=axs[i, j].transAxes)
 
             if i == 0:
-                axs[i, j].set_title(r'$x_0=y_0=z_0=${:.3f} $\lambda$'.format(x0/wavelength))
+                if config == "3D":
+                    axs[i, j].set_title(r'$x_0=y_0=z_0=${:.3f} $\lambda$'.format(x0/wavelength))
+                elif config == "1D":
+                    axs[i, j].set_title(r'$x_0=${:.3f} $\lambda$'.format(x0/wavelength))
 
             if i == len(alpha_list) - 1:
                 axs[i, j].set_xlabel('Time (ms)')
@@ -107,5 +117,6 @@ if __name__ == "__main__":
             if j == 0:
                 axs[i, j].set_ylabel('Integrated signal\n'+r'($\alpha$ = {:.1f})'.format(alpha), fontsize=11)            
 
-    plt.savefig('Microwave-power-gradient.png', dpi=300)
+    # fig.suptitle('Optical dipole trap', fontsize=16)
+    # plt.savefig('Microwave-power-gradient-ODT.png', dpi=300)
     plt.show()
